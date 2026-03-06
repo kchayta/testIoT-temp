@@ -7,29 +7,126 @@
 
     <style>
         body {
-            font-family: Arial;
-            background: #0f172a;
+            font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             color: white;
             text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
+            background: -webkit-linear-gradient(45deg, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
 
         .container {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section-container {
+            width: 100%;
+            padding: 30px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .section-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #94a3b8;
+            margin: 0 0 25px 0;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .card-group {
+            display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 60px;
+            flex-wrap: wrap;
+            gap: 25px;
         }
 
         .card {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 15px;
-            width: 200px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 25px 20px;
+            border-radius: 16px;
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .highlight-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .highlight-card:hover {
+            transform: scale(1.08);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            font-weight: 500;
         }
 
         .value {
-            font-size: 45px;
-            font-weight: bold;
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        #is_raining {
+            transition: color 0.4s ease;
+        }
+
+        .weather-card {
+            width: 200px;
         }
     </style>
 
@@ -40,25 +137,52 @@
     <h1>Air Quality Dashboard from ESP32</h1>
 
     <div class="container">
+        <!-- Air Quality Container -->
+        <div class="section-container">
+            <h2 class="section-title">Air Quality</h2>
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-title">PM1.0</div>
+                    <div id="pm1" class="value">--</div>
+                    <div class="card-subtitle">µg/m³</div>
+                </div>
 
-        <div class="card">
-            <div id="pm1" class="value">--</div>
-            PM1.0 (µg/m³)
+                <div class="card highlight-card">
+                    <div class="card-title">PM2.5</div>
+                    <div id="pm25" class="value">--</div>
+                    <div class="card-subtitle">µg/m³</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">PM10</div>
+                    <div id="pm10" class="value">--</div>
+                    <div class="card-subtitle">µg/m³</div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <div id="pm25" class="value">--</div>
-            PM2.5 (µg/m³)
-        </div>
+        <!-- Weather Container -->
+        <div class="section-container">
+            <h2 class="section-title">Weather Status</h2>
+            <div class="card-group">
+                <div class="card weather-card" id="rain-status-card">
+                    <div class="card-title">Precipitation</div>
+                    <div id="is_raining" class="value" style="font-size: 32px; padding: 10px 0;">--</div>
+                    <div class="card-subtitle">Status</div>
+                </div>
 
-        <div class="card">
-            <div id="pm10" class="value">--</div>
-            PM10 (µg/m³)
+                <div class="card">
+                    <div class="card-title">Moisture Level</div>
+                    <div id="rain_value" class="value">--</div>
+                    <div class="card-subtitle">%</div>
+                </div>
+            </div>
         </div>
-
     </div>
 
-    <p style="margin-top: 30px; color: #94a3b8; font-size: 14px;">Last Update: <span id="last_update">--</span></p>
+    <p style="margin-top: 40px; color: #94a3b8; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;">Last Update:
+        <span id="last_update">--</span>
+    </p>
 
 
     <script type="module">
@@ -113,13 +237,40 @@
             return "#f87171"; // สีแดง (อันตราย)
         }
 
+        // ฟังก์ชัน Map ค่า
+        function mapValue(x, in_min, in_max, out_min, out_max) {
+            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        }
+
+        // ฟังก์ชันสำหรับเลือกสีให้การแจ้งเตือนฝนตก
+        function updateRainStatus(isRaining) {
+            const el = document.getElementById("is_raining");
+            const card = document.getElementById("rain-status-card");
+            if (isRaining === true) {
+                el.innerText = "Raining";
+                el.style.color = "#38bdf8"; // สีฟ้า
+                el.style.textShadow = "0 0 15px rgba(56, 189, 248, 0.5)";
+                card.style.borderColor = "rgba(56, 189, 248, 0.3)";
+            } else if (isRaining === false) {
+                el.innerText = "Clear";
+                el.style.color = "#fbbf24"; // สีเหลืองทอง
+                el.style.textShadow = "none";
+                card.style.borderColor = "rgba(255, 255, 255, 0.03)";
+            } else {
+                el.innerText = "--";
+                el.style.color = "#f8fafc";
+            }
+        }
+
         function startDatabase(uid) {
-            const basePath = `Users/${uid}/AirQuality/`;
+            const basePath = `Users/${uid}/Environment/`;
 
             const refs = {
-                pm1: ref(db, basePath + "PM1_0"),
-                pm25: ref(db, basePath + "PM25"),
-                pm10: ref(db, basePath + "PM10"),
+                pm1: ref(db, basePath + "AirQuality/PM1_0"),
+                pm25: ref(db, basePath + "AirQuality/PM25"),
+                pm10: ref(db, basePath + "AirQuality/PM10"),
+                isRaining: ref(db, basePath + "Weather/isRaining"),
+                rainValue: ref(db, basePath + "Weather/rainValue"),
                 lastUpdate: ref(db, basePath + "last_update")
             };
 
@@ -148,11 +299,33 @@
                 document.getElementById("pm10").innerText = (val !== null) ? val : "--";
             });
 
+            // ดึงค่าความชื้นเซนเซอร์น้ำฝนและประมวลผลสถานะฝนตก
+            onValue(refs.rainValue, (snapshot) => {
+                const val = snapshot.val();
+                if (val !== null) {
+                    // แปลงค่า Analog (4095 = แห้งสนิท, 0 = เปียกมาก) เป็นเปอร์เซ็นต์ (0 - 100%)
+                    let percentage = mapValue(val, 4095, 0, 0, 100);
+                    // ป้องกันค่าเกิน 100% หรือติดลบ (Clamp)
+                    if (percentage < 0) percentage = 0;
+                    if (percentage > 100) percentage = 100;
+
+                    document.getElementById("rain_value").innerText = percentage.toFixed(0);
+
+                    // ใช้ค่า Analog ประเมินการตกของฝนแทน Digital เพราะ Digital อาจจะไม่แม่นยำ (อิงตามค่า Threshold เช่น 3000)
+                    // ถ้าค่า Analog ต่ำกว่า 3000 แสดงว่าเริ่มมีน้ำเกาะ (ยิ่งน้อยยิ่งเปียก)
+                    const isRainingNum = val < 3000;
+                    updateRainStatus(isRainingNum);
+                } else {
+                    document.getElementById("rain_value").innerText = "--";
+                    updateRainStatus(null);
+                }
+            });
+
             // ดึงค่าเวลาอัปเดตล่าสุด
             onValue(refs.lastUpdate, (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
-                    const date = new Date(val);
+                    const date = new Date(val); // timestamp จาก .sv เป็น ms อยู่แล้ว
                     document.getElementById("last_update").innerText = date.toLocaleString('th-TH');
                 }
             });
