@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>ESP32 Firebase Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 15px;
+            width: 200px;
+        }
+
+        .value {
+            font-size: 45px;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>ESP32 IoT Dashboard</h1>
+
+    <div class="container">
+
+        <div class="card">
+            <div id="temp" class="value">--</div>
+            Temperature °C
+        </div>
+
+        <div class="card">
+            <div id="hum" class="value">--</div>
+            Humidity %
+        </div>
+
+    </div>
+
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnV0IikMb-244PYra66bHeFbs0NN4NxN4",
+            authDomain: "ssrudatabase.firebaseapp.com",
+            databaseURL: "https://ssrudatabase-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ssrudatabase",
+            storageBucket: "ssrudatabase.firebasestorage.app",
+            messagingSenderId: "48353088462",
+            appId: "1:48353088462:web:a8ade1c6fd0b69b9f1519f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+
+        // AUTO SIGN IN
+        const email = "YOUR_EMAIL";
+        const password = "YOUR_PASSWORD";
+
+        signInWithEmailAndPassword(auth, email, password)
+
+            .then((userCredential) => {
+
+                console.log("Firebase Auth Success");
+
+                startDatabase();
+
+            })
+
+            .catch((error) => {
+
+                console.error("Auth error:", error);
+
+            });
+
+
+
+        // READ FIREBASE DATA
+        function startDatabase() {
+
+            const tempRef = ref(db, "sensor/temperature");
+            const humRef = ref(db, "sensor/humidity");
+
+            onValue(tempRef, (snapshot) => {
+
+                const value = snapshot.val();
+
+                if (value != null)
+                    document.getElementById("temp").innerHTML = value.toFixed(1);
+
+            });
+
+            onValue(humRef, (snapshot) => {
+
+                const value = snapshot.val();
+
+                if (value != null)
+                    document.getElementById("hum").innerHTML = value.toFixed(1);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
