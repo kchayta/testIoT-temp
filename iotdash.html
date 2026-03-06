@@ -37,21 +37,28 @@
 
 <body>
 
-    <h1>ESP32 IoT Dashboard</h1>
+    <h1>Air Quality Dashboard from ESP32</h1>
 
     <div class="container">
 
         <div class="card">
-            <div id="temp" class="value">--</div>
-            Temperature °C
+            <div id="pm1" class="value">--</div>
+            PM1.0 (µg/m³)
         </div>
 
         <div class="card">
-            <div id="hum" class="value">--</div>
-            Humidity %
+            <div id="pm25" class="value">--</div>
+            PM2.5 (µg/m³)
+        </div>
+
+        <div class="card">
+            <div id="pm10" class="value">--</div>
+            PM10 (µg/m³)
         </div>
 
     </div>
+
+    <p style="margin-top: 30px; color: #94a3b8; font-size: 14px;">Last Update: <span id="last_update">--</span></p>
 
 
     <script type="module">
@@ -85,8 +92,8 @@
             .then((userCredential) => {
 
                 console.log("Firebase Auth Success");
-
-                startDatabase();
+                const uid = userCredential.user.uid;
+                startDatabase(uid);
 
             })
 
@@ -97,32 +104,92 @@
             });
 
 
+        // ฟังก์ชันสำหรับเลือกสีตามค่า PM2.5
+        function getPM25Color(value) {
+            if (value <= 15.0) return "#34d399"; // สีเขียวมิ้นต์/ฟ้า (ดีมาก)
+            if (value <= 25.0) return "#4ade80"; // สีเขียว (ดี)
+            if (value <= 37.5) return "#fbbf24"; // สีเหลือง (ปานกลาง)
+            if (value <= 75.0) return "#fb923c"; // สีส้ม (เริ่มอันตราย)
+            return "#f87171"; // สีแดง (อันตราย)
+        }
+
+        function startDatabase(uid) {
+            const basePath = `Users/${uid}/AirQuality/`;
+
+            const refs = {
+                pm1: ref(db, basePath + "PM1_0"),
+                pm25: ref(db, basePath + "PM25"),
+                pm10: ref(db, basePath + "PM10"),
+                lastUpdate: ref(db, basePath + "last_update")
+            };
+
+            // ดึงค่า PM1.0
+            onValue(refs.pm1, (snapshot) => {
+                const val = snapshot.val();
+                document.getElementById("pm1").innerText = (val !== null) ? val : "--";
+            });
+
+            // ดึงค่า PM2.5 พร้อมเปลี่ยนสี
+            onValue(refs.pm25, (snapshot) => {
+                const val = snapshot.val();
+                const element = document.getElementById("pm25");
+                if (val !== null) {
+                    element.innerText = val;
+                    element.style.color = getPM25Color(val); // เปลี่ยนสีตัวเลขตามค่าที่อ่านได้
+                } else {
+                    element.innerText = "--";
+                    element.style.color = "#f8fafc"; // สีปกติเมื่อไม่มีข้อมูล
+                }
+            });
+
+            // ดึงค่า PM10
+            onValue(refs.pm10, (snapshot) => {
+                const val = snapshot.val();
+                document.getElementById("pm10").innerText = (val !== null) ? val : "--";
+            });
+
+            // ดึงค่าเวลาอัปเดตล่าสุด
+            onValue(refs.lastUpdate, (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    const date = new Date(val);
+                    document.getElementById("last_update").innerText = date.toLocaleString('th-TH');
+                }
+            });
+        }
 
         // READ FIREBASE DATA
-        function startDatabase() {
+        /*function startDatabase() {
 
-            const tempRef = ref(db, "sensor/temperature");
-            const humRef = ref(db, "sensor/humidity");
+            const pm1Ref = ref(db, "AirQuality/PM1_0");
+            const pm25Ref = ref(db, "AirQuality/PM25");
+            const pm10Ref = ref(db, "AirQuality/PM10");
+            const lastUpdateRef = ref(db, "AirQuality/last_update");
 
-            onValue(tempRef, (snapshot) => {
-
+            onValue(pm1Ref, (snapshot) => {
                 const value = snapshot.val();
-
-                if (value != null)
-                    document.getElementById("temp").innerHTML = value.toFixed(1);
-
+                if (value != null) document.getElementById("pm1").innerHTML = value;
             });
 
-            onValue(humRef, (snapshot) => {
-
+            onValue(pm25Ref, (snapshot) => {
                 const value = snapshot.val();
-
-                if (value != null)
-                    document.getElementById("hum").innerHTML = value.toFixed(1);
-
+                if (value != null) document.getElementById("pm25").innerHTML = value;
             });
 
-        }
+            onValue(pm10Ref, (snapshot) => {
+                const value = snapshot.val();
+                if (value != null) document.getElementById("pm10").innerHTML = value;
+            });
+
+            onValue(lastUpdateRef, (snapshot) => {
+                const value = snapshot.val();
+                if (value != null) {
+                    const date = new Date(value);
+                    document.getElementById("last_update").innerHTML = date.toLocaleString();
+                }
+            });
+
+        }*/
 
     </script>
 
