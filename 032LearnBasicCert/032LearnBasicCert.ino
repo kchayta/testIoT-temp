@@ -21,8 +21,8 @@
 #include <addons/RTDBHelper.h>
 
 /* 1. Define the WiFi credentials */
-#define WIFI_SSID "Nightblue"
-#define WIFI_PASSWORD "enable111"
+#define WIFI_SSID "@Kitti"
+#define WIFI_PASSWORD "tonn7771"
 
 // For the following credentials, see examples/Authentications/SignInAsUser/EmailPassword/EmailPassword.ino
 
@@ -88,7 +88,7 @@ unsigned long count = 0;
 void setup()
 {
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
